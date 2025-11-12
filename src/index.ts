@@ -2,6 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import messageRoutes from "./routes/emailRoutes";
 import searchRoutes from "./routes/searchRoutes";
+import aiRoutes from "./routes/aiRoutes";
+import webhookController from "./controllers/webhook.controller";
+import webhookRoutes from "./routes/webhookRoutes";
 // Load environment variables
 dotenv.config();
 
@@ -15,7 +18,8 @@ webApp.use(express.json());
 // API Routes Registration
 webApp.use('/api/messages', messageRoutes);
 webApp.use('/api/search', searchRoutes); 
-
+webApp.use('/api/ai', aiRoutes);
+webApp.use('/api/webhook', webhookRoutes);
 // Health check endpoint - validates application availability
 webApp.get('/status', (req, res) => {
     res.json({
