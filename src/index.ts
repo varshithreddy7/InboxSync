@@ -1,27 +1,22 @@
 import express from "express";
 import dotenv from "dotenv";
-import messageRoutes from "./routes/emailRouts";
-
+import messageRoutes from "./routes/emailRoutes";
+import searchRoutes from "./routes/searchRoutes";
 // Load environment variables
 dotenv.config();
 
-/**
- * Application Setup - Initializes Express server and configures middleware
- */
+// Application Setup - Initializes Express server and configures middleware
 const webApp = express();
 const serverPort = process.env.PORT || 3000;
 
 // Middleware setup
 webApp.use(express.json());
 
-/**
- * API Routes Registration
- */
+// API Routes Registration
 webApp.use('/api/messages', messageRoutes);
+webApp.use('/api/search', searchRoutes); 
 
-/**
- * Health check endpoint - validates application availability
- */
+// Health check endpoint - validates application availability
 webApp.get('/status', (req, res) => {
     res.json({
         operational: true,
@@ -30,9 +25,7 @@ webApp.get('/status', (req, res) => {
     });
 });
 
-/**
- * Server initialization
- */
+// Server initialization
 webApp.listen(serverPort, () => {
     console.log(`✓ Server operational on port ${serverPort}`);
     console.log(`✓ Environment: ${process.env.NODE_ENV || 'development'}`);
