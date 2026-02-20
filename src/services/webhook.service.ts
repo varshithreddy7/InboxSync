@@ -65,7 +65,7 @@ class WebhookNotifier {
       const response = await axios.post(this.webhookUrl, payload, {
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': 'ReachInbox-webhook/1.0',
+          'User-Agent': 'InboxSync-webhook/1.0',
         },
         timeout: 5000,
       });
@@ -96,7 +96,7 @@ class WebhookNotifier {
     const testPayload = {
       event: 'WEBHOOK_TEST',
       timestamp: new Date().toISOString(),
-      message: 'This is a test webhook from ReachInbox',
+      message: 'This is a test webhook from InboxSync',
     };
 
     console.log('Sending test webhook...');

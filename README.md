@@ -1,79 +1,92 @@
-# ReachInbox Onebox - Email Aggregator with AI
+# InboxSync – Email Aggregator with AI
 
-A feature-rich email aggregator with real-time IMAP sync, AI categorization, and RAG-powered suggested replies built for the ReachInbox assignment.
+A personal email aggregator with real-time IMAP sync, full-text search, AI categorization, webhook notifications, and RAG-powered suggested replies.
 
-## 🎯 Project Status
-
-**48-Hour Assignment Challenge**
-- Start: November 12, 2025, 12:33 AM IST
-- Deadline: November 14, 2025, 12:33 AM IST
-- Status: In Progress
+> **Note:** This project started as a take-home assignment and is now maintained as a personal project for further learning and feature additions.
 
 ## 🏗️ Tech Stack
 
-| Layer | Technology | Reason |
-|-------|-----------|--------|
-| **Backend** | Node.js + TypeScript + Express | Type-safe, scalable backend |
-| **Database** | PostgreSQL + pgvector | ACID compliance + vector similarity search |
-| **Search** | Elasticsearch | Full-text search with sub-100ms queries |
-| **Email Sync** | ImapFlow (IDLE mode) | Real-time sync, not polling |
-| **AI** | OpenAI GPT-4o-mini | Cost-effective, high accuracy |
-| **Notifications** | Webhooks (webhook.site) | External automation trigger |
-| **Frontend** | React + TypeScript | Interactive email interface |
+| Layer      | Technology                    |
+|-----------|-------------------------------|
+| Backend   | Node.js, TypeScript, Express  |
+| Database  | PostgreSQL + pgvector         |
+| Search    | Elasticsearch                 |
+| Email Sync| ImapFlow (IDLE)               |
+| AI        | OpenAI GPT-4o-mini            |
+| Frontend  | React, TypeScript, Vite, Tailwind |
 
 ## ✨ Features
 
-### Completed
-- [x] Project setup with TypeScript configuration
-- [x] Docker Compose with Postgres + Elasticsearch
-- [x] Prisma ORM with pgvector extension
-- [x] Git repository initialization
-
-### In Progress (Features 1-6)
-- [ ] **Feature 1: Real-Time IMAP Sync**
-  - Dual account support for now, after completion I will add multiple accounts too.
-  - IDLE mode for sub-second latency
-  - 30-day email fetching
-  - Auto-reconnect with exponential backoff
-
-- [ ] **Feature 2: Elasticsearch Search**
-  - Full-text search across subject, body, sender
-  - Filtering by account, folder, category
-  - Multi-field indexing
-
-- [ ] **Feature 3: AI Email Categorization**
-  - 5-category classification (Interested, Meeting Booked, Not Interested, Spam, Out of Office)
-  - GPT-4o-mini for cost efficiency
-  - Automatic categorization on email arrival
-
-- [ ] **Feature 4: Webhook Notifications**
-  - Trigger webhooks for "Interested" emails
-  - Retry logic with exponential backoff
-  - External system integration
-
-- [ ] **Feature 5: React Frontend**
-  - Email list with real-time updates
-  - Filter by account, category, folder
-  - Search functionality
-  - Responsive UI design
-
-- [ ] **Feature 6: RAG Suggested Replies**
-  - pgvector for vector similarity search
-  - Training data with embeddings
-  - Context-aware reply suggestions
-  - **Direct interview invitation upon completion**
+- **Real-time IMAP sync** – Connect multiple accounts, 30-day history, IDLE for new mail
+- **Elasticsearch search** – Full-text search across subject, body, sender; filter by account, folder, category
+- **AI categorization** – Auto-classify into: Interested, Meeting Booked, Not Interested, Spam, Out of Office
+- **Webhooks** – Notify external systems when emails are marked “Interested” (with retries)
+- **React frontend** – Email list, filters, search, category stats, AI reply suggestions
+- **RAG suggested replies** – pgvector + training examples for context-aware reply suggestions
 
 ## 📦 Prerequisites
 
-- **Docker & Docker Compose** (v2.27+)
-- **Node.js** (v20.11+)
-- **npm** (v10.8+)
-- **OpenAI API Key** (for GPT-4o-mini)
-- **Gmail App Passwords** (2 accounts for IMAP)
+- Docker & Docker Compose
+- Node.js 20+
+- OpenAI API key (for categorization and RAG)
+- IMAP credentials (e.g. Gmail App Passwords)
 
 ## 🚀 Quick Start
 
-### 1. Clone Repository
+### 1. Clone and install
+
 ```bash
-git clone https://github.com/varshithreddy7/reachinbox-assignment.git
-cd reachinbox-assignment
+git clone <your-repo-url>
+cd <project-folder>
+npm install
+cd frontend && npm install && cd ..
+```
+
+### 2. Environment
+
+```bash
+cp .env.sample .env
+# Edit .env: DATABASE_URL, OPENAI_API_KEY, WEBHOOK_URL (optional), IMAP_* for sync
+```
+
+### 3. Database and services
+
+```bash
+docker-compose up -d
+npx prisma migrate deploy
+npx prisma db seed   # optional: sample emails + RAG examples
+```
+
+### 4. Run
+
+```bash
+# Backend
+npm run dev
+
+# Frontend (another terminal)
+cd frontend && npm run dev
+```
+
+- API: http://localhost:3000  
+- App: http://localhost:5173  
+
+## 📁 Project structure
+
+- `src/` – Express API, routes, controllers, services (IMAP, Elasticsearch, AI, webhook, RAG)
+- `frontend/` – React app (Dashboard, email list/detail, filters, search, stats)
+- `prisma/` – Schema, migrations, seed
+
+## 🔮 Roadmap
+
+Ideas for future improvements:
+
+- [ ] Expose IMAP connect/disconnect via API or startup from env
+- [ ] More email routes (get by id, by folder, global stats)
+- [ ] Real-time UI updates (e.g. WebSocket or polling) when new mail arrives
+- [ ] Multiple accounts management from the UI
+- [ ] Custom categories and rules
+- [ ] Better RAG UX (manage training examples in the app)
+
+## 📄 License
+
+ISC

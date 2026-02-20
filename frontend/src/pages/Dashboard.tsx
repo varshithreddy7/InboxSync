@@ -96,7 +96,7 @@ export default function Dashboard() {
       <header className="h-16 bg-white border-b flex items-center px-6">
         <div className="flex items-center">
           <Mail className="h-8 w-8 text-blue-500 mr-3" />
-          <h1 className="text-2xl font-bold text-gray-900">ReachInbox</h1>
+          <h1 className="text-2xl font-bold text-gray-900">InboxSync</h1>
         </div>
         <div className="ml-auto w-96">
           <SearchBar
