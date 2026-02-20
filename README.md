@@ -4,7 +4,7 @@ A personal email aggregator with real-time IMAP sync, full-text search, AI categ
 
 > **Note:** This project started as a take-home assignment and is now maintained as a personal project for further learning and feature additions.
 
-## 🏗️ Tech Stack
+## 🌟 Overview
 
 | Layer      | Technology                    |
 |-----------|-------------------------------|
@@ -15,7 +15,7 @@ A personal email aggregator with real-time IMAP sync, full-text search, AI categ
 | AI        | OpenAI GPT-4o-mini            |
 | Frontend  | React, TypeScript, Vite, Tailwind |
 
-## ✨ Features
+### 🎯 Project Timeline
 
 - **Real-time IMAP sync** – Connect multiple accounts, 30-day history, IDLE for new mail
 - **Elasticsearch search** – Full-text search across subject, body, sender; filter by account, folder, category
@@ -24,7 +24,40 @@ A personal email aggregator with real-time IMAP sync, full-text search, AI categ
 - **React frontend** – Email list, filters, search, category stats, AI reply suggestions
 - **RAG suggested replies** – pgvector + training examples for context-aware reply suggestions
 
-## 📦 Prerequisites
+### 🎨 Modern React Interface
+- **Real-Time Updates** – Live email list synchronization
+- **Responsive Design** – Seamless experience across devices
+- **Intuitive Filtering** – Easy navigation and search
+
+---
+
+## 🏗️ Technology Stack
+
+```mermaid
+graph TD
+    A[React Frontend] -->|REST API| B[Express Backend]
+    B -->|ORM| C[PostgreSQL + pgvector]
+    B -->|Indexing| D[Elasticsearch]
+    B -->|AI Services| E[OpenAI GPT-4o-mini]
+    B -->|Email Sync| F[ImapFlow IDLE]
+    B -->|Notifications| G[Webhook.site]
+```
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Frontend** | React + TypeScript | Dynamic, type-safe UI |
+| **Backend** | Node.js + Express + TypeScript | Scalable REST API server |
+| **Database** | PostgreSQL + pgvector | ACID compliance + vector search |
+| **Search Engine** | Elasticsearch | Full-text search (<100ms) |
+| **Email Protocol** | ImapFlow (IDLE mode) | Real-time synchronization |
+| **AI/ML** | OpenAI GPT-4o-mini | Email classification & replies |
+| **Notifications** | Webhooks | External event triggers |
+
+---
+
+## 📋 Prerequisites
+
+Before you begin, ensure you have the following installed:
 
 - Docker & Docker Compose
 - Node.js 20+
