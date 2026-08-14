@@ -8,6 +8,11 @@ const openai = new OpenAI({
 });
 
 class RAGService {
+  // Minimum cosine similarity required before we attempt generation.
+  // Below this threshold the retrieval is too weak to ground a reliable reply —
+  // we return an explicit "insufficient context" signal instead of a fabricated one.
+  private readonly RELEVANCE_THRESHOLD = 0.35;
+
   // Create embedding for text using OpenAI
   async createEmbedding(text: string): Promise<number[]> {
     try {
@@ -92,16 +97,53 @@ class RAGService {
       const similarData = await this.findSimilarTrainingData(emailBody, account);
 
       if (similarData.length === 0) {
-        console.warn('No similar training data found');
+        console.warn('No training data found — returning refusal');
         return {
-          reply: 'Thank you for your email. I will get back to you soon.',
-          confidence: 0.3,
+          reply: null,
+          confidence: 0,
+          refused: true,
+          reason: 'No training data available for this account',
         };
       }
 
-      // Build context from similar training data
-      const context = similarData
-        .map((data) => `Topic: ${data.topic}\nOriginal: ${data.emailBody}\nSuggested Reply: ${data.suggestedReply}`)
+      // Extract real similarity scores — the pgvector query already computed these.
+      // Previously these were computed then silently discarded; now we surface them.
+      const maxSimilarity = Math.max(
+        ...similarData.map((d: any) => parseFloat(d.similarity) || 0)
+      );
+
+      console.log(`RAG: Best retrieval similarity = ${maxSimilarity.toFixed(4)} (threshold: ${this.RELEVANCE_THRESHOLD})`);
+
+      // RELEVANCE GATE: if best match is below threshold, retrieval is too weak
+      // to ground a reliable reply. Return an honest signal instead of a fabricated one.
+      if (maxSimilarity < this.RELEVANCE_THRESHOLD) {
+        console.warn(`RAG: Similarity ${maxSimilarity.toFixed(4)} below threshold — refusing generation`);
+
+        // Store the refusal in the audit trail so callers can inspect it
+        await prisma.$executeRaw`
+          INSERT INTO "SuggestedReply" (id, "emailId", subject, reply, confidence, "createdAt")
+          VALUES (
+            gen_random_uuid(), ${emailId}, ${subject},
+            ${'[REFUSED: retrieval similarity ' + maxSimilarity.toFixed(4) + ' below threshold ' + this.RELEVANCE_THRESHOLD + ']'},
+            ${maxSimilarity}, NOW()
+          )
+        `;
+
+        return {
+          reply: null,
+          confidence: maxSimilarity,
+          refused: true,
+          reason: `Retrieval similarity too low (${maxSimilarity.toFixed(4)} < ${this.RELEVANCE_THRESHOLD}) — no reliable context to generate a grounded reply`,
+        };
+      }
+
+      // Build context from above-threshold training examples only
+      const relevantData = similarData.filter(
+        (d: any) => (parseFloat(d.similarity) || 0) >= this.RELEVANCE_THRESHOLD
+      );
+
+      const context = relevantData
+        .map((data: any) => `Topic: ${data.topic}\nOriginal: ${data.emailBody}\nSuggested Reply: ${data.suggestedReply}`)
         .join('\n\n---\n\n');
 
       // Generate reply with GPT-4o-mini using RAG context
@@ -130,23 +172,26 @@ Guidelines:
 
       const suggestedReply = response.choices[0].message.content || 'Unable to generate reply';
 
-      // Store suggested reply using raw SQL to avoid Prisma client issues
+      // Store suggested reply — confidence is the REAL max similarity score, not a hardcoded constant
       await prisma.$executeRaw`
         INSERT INTO "SuggestedReply" (id, "emailId", subject, reply, confidence, "createdAt")
-        VALUES (gen_random_uuid(), ${emailId}, ${subject}, ${suggestedReply}, ${0.85}, NOW())
+        VALUES (gen_random_uuid(), ${emailId}, ${subject}, ${suggestedReply}, ${maxSimilarity}, NOW())
       `;
 
-      console.log(`Reply generated`);
+      console.log(`RAG: Reply generated (confidence: ${maxSimilarity.toFixed(4)})`);
 
       return {
         reply: suggestedReply,
-        confidence: 0.85,
+        confidence: maxSimilarity,
+        refused: false,
       };
     } catch (error) {
       console.error('Error generating reply:', error);
       return {
-        reply: 'Unable to generate reply at this time.',
+        reply: null,
         confidence: 0,
+        refused: true,
+        reason: 'Internal error during generation',
       };
     }
   }
