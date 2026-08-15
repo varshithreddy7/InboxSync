@@ -535,12 +535,23 @@ Retrieve emails for a given account and folder.
   "account": "account1"
 }
 
-// Response
+// Response — reply generated (similarity above threshold)
 {
   "success": true,
   "emailId": "account1-123",
   "suggestedReply": "Thank you for your interest! I'd love to show you the product...",
-  "confidence": 0.85
+  "confidence": 0.53,
+  "refused": false
+}
+
+// Response — refused (similarity below RELEVANCE_THRESHOLD = 0.35)
+{
+  "success": true,
+  "emailId": "account1-spam1",
+  "suggestedReply": null,
+  "confidence": 0.24,
+  "refused": true,
+  "reason": "Retrieval similarity too low (0.24 < 0.35) — no reliable context to generate a grounded reply"
 }
 ```
 
@@ -565,7 +576,7 @@ Retrieve emails for a given account and folder.
     "emailId": "account1-123",
     "subject": "Can we schedule a demo?",
     "reply": "Thank you for your interest!...",
-    "confidence": 0.85,
+    "confidence": 0.53,
     "createdAt": "2025-11-12T10:30:00.000Z"
   }
 }
