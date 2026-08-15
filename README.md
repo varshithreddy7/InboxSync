@@ -17,6 +17,8 @@
 
 </div>
 
+> Wrote up a bug I found in the RAG confidence scoring here → [WRITEUP.md](./WRITEUP.md)
+
 ---
 
 ## 📖 Overview
